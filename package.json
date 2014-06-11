@@ -3,18 +3,14 @@
   "version": "1.0.0",
   "description": "Simple jQuery wrapper around dust",
   "author": "Rob Colburn <rob@robcolburn.com>",
-  "dependencies": {
-    "jquery": "^2.1.1",
-    "dustjs-linkedin": "^2.3.5"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robcolburn/jquery.dust.git"
   },
   "devDependencies": {
+    "jquery": "^2.1.1",
+    "dustjs-linkedin": "^2.3.5",
     "chai": "^1.9.1",
-    "chai-jquery": "^1.2.3",
-    "grunt": "^0.4.4",
-    "grunt-contrib-jshint": "^0.10.0",
-    "grunt-contrib-uglify": "^0.4.0",
-    "grunt-mocha": "^0.4.10",
-    "load-grunt-config": "^0.7.2",
     "mocha": "^1.18.2",
     "multiline": "^0.3.4"
   },
