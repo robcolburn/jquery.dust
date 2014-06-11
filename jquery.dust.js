@@ -10,11 +10,14 @@
    *   Name of the dust template to use.
    *   If skipped, will use this parameter as data, and
    *      will attempt to use data attribute if not specified.
-   * @param {object|function} data
+   * @param {object|function|Promise} data
    *   An object to pass to dust template function
    *   If a function is passed
    *     The function will be called on each element in the set
    *     with the element as context, and the index as an argument
+   *   If a Promise is passed
+   *     We will render the template from the result of the promise
+   *     when it becomes available
    *   Finally, attempt to parse data attributes if data not specified
    */
   $.fn.dust = function (templateName, data) {
@@ -22,7 +25,7 @@
       data = templateName;
       templateName = false;
     }
-    return $.extend(this, $.when(
+    return $.extend(this, $.when.apply($,
       this.map(function (index, domElement) {
         return $.dust(domElement,
           templateName || $(domElement).data('dust-template'),
@@ -45,12 +48,16 @@
    *   A jQuery Selector to apply templated data to
    * @param {string} templateName
    *   Name of the dust template to render
-   * @param {object} templateData
+   * @param {object|Promise} templateData
    *   Data to pass to dust template
+   *   Or, promise of data to pass to dust template
    * @return {jQuery.Deferred}
    *   Promise resolved with the element has rendered with the element
    */
   $.dust = function (element, templateName, templateData) {
+    if (templateData && typeof templateData.then === 'function') {
+      return templateData.then($.proxy($.dust, $, element, templateName));
+    }
     var deferred = new $.Deferred();
     dust.render(templateName, templateData, function (err, out) {
       if (err) {

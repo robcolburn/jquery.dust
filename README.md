@@ -242,3 +242,46 @@ $('.cat').dust(function (index) {
 	return cats[index];
 }).done(finished);
 ```
+
+### Example 6: Promises, promises
+
+```html
+<div id="cat-stuff" class="stuff" data-dust-template="cute-cat"></div>
+<div id="dog-stuff" class="stuff" data-dust-template="big-bad-dog"></div>
+<div id="plant-stuff" class="stuff" data-dust-template="plant"></div>
+<script id="cute-cat" type="text/dust-template">
+	<div class="cute-cat">
+		<div class="name">{cat.name}</div>
+		{#cat.feet}<span class="foot"/>{/cat.feet}
+	</div>
+</script>
+<script id="big-bad-dog" type="text/dust-template">
+	<div class="dog">
+		<div class="name">{dog.name}</div>
+		{#dog.feet}<span class="foot"/>{/dog.feet}
+	</div>
+</script>
+<script id="plant" type="text/dust-template">
+	<div class="plant">
+		<div class="name">{plant.name}</div>
+	</div>
+</script>
+```
+
+```js
+var willBeStuff = (function () {
+	var promise = new $.Deferred();
+	setTimeout(function () {
+		promise.resolve({
+			cat: {name: 'fluffy', feet: [1,1,1,1]},
+			dog: {name: 'fred', feet: [1,1,1,1]},
+			plant: {name: 'bob'}
+		});
+	}, 10);
+	return promise;
+});
+
+$.dust.compile();
+$('.stuff').dust(willBeStuff).done(finished);
+
+```
