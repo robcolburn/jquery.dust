@@ -15,14 +15,14 @@
    *     with the element as context, and the index as an argument
    *   Finally, attempt to parse data attributes if data not specified
    */
-  $.fn.dustTemplate = function (templateName, data) {
+  $.fn.dust = function (templateName, data) {
     if (arguments.length === 1) {
       data = templateName;
       templateName = false;
     }
     return $.extend(this, $.when(
       this.map(function (index, domElement) {
-        return $.dustTemplate(domElement,
+        return $.dust.render(domElement,
           templateName || $(domElement).data('dust-template'),
           ($.isFunction(data) ? data.call(domElement, index) : (data || $(domElement).data()))
         );
@@ -30,20 +30,21 @@
     ));
   };
 
-  /**
-  * Render a Dust template to a particular element
-  * @param {selector} element
-  *   A jQuery Selector to apply templated data to
-  * @param {string} templateName
-  *   Name of the dust template to render
-  * @param {object} templateData
-  *   Data to pass to dust template
-  * @return {jQuery.Deferred}
-  *   Promise resolved with the element has rendered with the element
-  */
-  $.dustTemplate = function (element, templateName, templateData) {
-    var deferred = new $.Deferred();
+  $.dust = {};
 
+  /**
+   * Render a Dust template to a particular element
+   * @param {selector} element
+   *   A jQuery Selector to apply templated data to
+   * @param {string} templateName
+   *   Name of the dust template to render
+   * @param {object} templateData
+   *   Data to pass to dust template
+   * @return {jQuery.Deferred}
+   *   Promise resolved with the element has rendered with the element
+   */
+  $.dust.render = function (element, templateName, templateData) {
+    var deferred = new $.Deferred();
     dust.render(templateName, templateData, function (err, out) {
       if (err) {
         return deferred.reject(err.message);
@@ -54,5 +55,15 @@
     });
     return deferred;
   };
+
+  /**
+   * Compile Dart Templates embedded in script tags 
+   */
+  $.dust.compileScripts = function () {
+    $('script[type="text/dust-template"][id]').each(function () {
+      dust.compile($(this).html(), this.id);
+    });
+  };
+
 
 }(jQuery));

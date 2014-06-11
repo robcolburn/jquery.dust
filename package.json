@@ -1,5 +1,5 @@
 {
-  "name": "jQuery.dustTemplate",
+  "name": "jQuery.dust",
   "version": "1.0.0",
   "description": "Simple jQuery wrapper around dust",
   "author": "Rob Colburn <rob@robcolburn.com>",

@@ -1,4 +1,4 @@
-jQuery.dustTemplate
+jQuery.dust
 ===========================
 
 Todo
@@ -43,9 +43,9 @@ Sure, that works, but is it pretty?  We like to write pretty jQuery code.
 ### Example 1: Single line declarations
 
 ```js
-$('#cat-stuff').dustTemplate('cute-cat', cats);
-$('#dog-stuff').dustTemplate('big-bad-dog', dogs);
-$('#plant-stuff').dustTemplate('planty', plants);
+$('#cat-stuff').dust('cute-cat', cats);
+$('#dog-stuff').dust('big-bad-dog', dogs);
+$('#plant-stuff').dust('planty', plants);
 ```
 
 ### Example 2: Specify templates in markup
@@ -57,9 +57,9 @@ $('#plant-stuff').dustTemplate('planty', plants);
 ```
 
 ```js
-$('#cat-stuff').dustTemplate(cats);
-$('#dog-stuff').dustTemplate(dogs);
-$('#plant-stuff').dustTemplate(plants);
+$('#cat-stuff').dust(cats);
+$('#dog-stuff').dust(dogs);
+$('#plant-stuff').dust(plants);
 ```
 
 ### Example 3: Aply one big data object to a bunch of things.
@@ -71,7 +71,7 @@ $('#plant-stuff').dustTemplate(plants);
 ```
 
 ```js
-$('.thing').dustTemplate(bigDataObject);
+$('.thing').dust(bigDataObject);
 ```
 
 ### Example 4: Know when things are finished
@@ -84,7 +84,7 @@ $('.thing').dustTemplate(bigDataObject);
 ```
 
 ```js
-$('.thing').dustTemplate(bigDataObject).done(function ($cat, $dog, $planty) {
+$('.thing').dust(bigDataObject).done(function ($cat, $dog, $planty) {
 	$cat.show();
 	$dog.slideUp();
 	$planty.fadeIn();

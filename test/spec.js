@@ -51,9 +51,9 @@ describe("jQuery Dust", function(){
 			'<div id="plant-stuff" data-dust-template="planty"></div>'
 		);
 		var promises = [
-			$('#cat-stuff').dustTemplate(cats),
-			$('#dog-stuff').dustTemplate(dogs),
-			$('#plant-stuff').dustTemplate(plants)
+			$('#cat-stuff').dust(cats),
+			$('#dog-stuff').dust(dogs),
+			$('#plant-stuff').dust(plants)
 		];
 		$.when(promises).done(function () {
 			// validate template
@@ -67,7 +67,7 @@ describe("jQuery Dust", function(){
 			'<div class="thing" data-dust-template="big-bad-dog"></div>' +
 			'<div class="thing" data-dust-template="planty"></div>'
 		);
-		$('.thing').dustTemplate(bigDataObject)
+		$('.thing').dust(bigDataObject)
 			.done(promises, function () {
 				// validate template
 				done();
@@ -81,7 +81,7 @@ describe("jQuery Dust", function(){
 			'<div class="thing" data-dust-template="planty"></div>'
 		);
 		$('.thing')
-			.dustTemplate(bigDataObject)
+			.dust(bigDataObject)
 			.done(function ($cat, $dog, $planty) {
 				$cat.show();
 				$dog.slideUp();
