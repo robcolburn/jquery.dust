@@ -6,7 +6,8 @@
     <script src="../node_modules/jquery/dist/jquery.min.js"></script>
     <script src="../node_modules/mocha/mocha.js"></script>
     <script src="../node_modules/chai/chai.js"></script>
-    <script src="../chai-jquery.js"></script>
+    <script src="../node_modules/dustjs-linkedin/dist/dust-full.min.js"></script>
+    <script src="../node_modules/multiline/browser.js"></script>
     <script>
       mocha.setup('bdd');
       var should = chai.should();
@@ -14,6 +15,7 @@
         (window.mochaPhantomJS || window.mocha).run();
       };
     </script>
+    <script src="../jquery.dust.js"></script>
     <script src="spec.js"></script>
   </head>
   <body>

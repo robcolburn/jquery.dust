@@ -1,95 +1,281 @@
-describe("jQuery Dust", function(){
-	beforeEach(function () {
-		jQuery('body').append('<div id="temp" />');
-	});
+/*jshint expr:true*/
+$(function($){
+$('body').append('<div id="temp" />');
+describe("jquery.dust", function(){
 	afterEach(function () {
-		jQuery('#temp').remove();
+		$('#temp').empty();
+		dust.cache = {};
 	});
-	it("Example 1 works as expected", function (done) {
-		jQuery('#temp').append(
-			'<div id="cat-stuff"></div>' +
-			'<div id="dog-stuff"></div>' +
-			'<div id="plant-stuff"></div>'
-		);
-		var promises = [
-			new jQuery.Deferred(),
-			new jQuery.Deferred(),
-			new jQuery.Deferred()
-		];
-		dust.render('cute-cat', cats, function (err, out) {
+
+	// Notice that each of these test cases are copy/paste from README
+	// That is very intentional :-)
+
+	var initialHTML = multiline(function(){/*
+		<div id="cat-stuff"></div>
+		<div id="dog-stuff"></div>
+		<div id="plant-stuff"></div>
+		<script id="cute-cat" type="text/dust-template">
+			<div class="cute-cat">
+				<div class="name">{name}</div>
+				{#feet}<span class="foot"/>{/feet}
+			</div>
+		</script>
+		<script id="big-bad-dog" type="text/dust-template">
+			<div class="dog">
+				<div class="name">{name}</div>
+				{#feet}<span class="foot"/>{/feet}
+			</div>
+		</script>
+		<script id="planty" type="text/dust-template">
+			<div class="plant">
+				<div class="name">{name}</div>
+			</div>
+		</script>
+	*/});
+
+	it('Before Code: Some placeholders and some templates', function (done) {
+		$('#temp').html(initialHTML);
+		// Data
+		var stuff = {
+			cat: {name: 'fluffy', feet: [1,1,1,1]},
+			dog: {name: 'fred', feet: [1,1,1,1]},
+			plant: {name: 'bob'}
+		};
+
+		// Templates
+		dust.compileFn($('#cute-cat').html(), 'cute-cat');
+		dust.compileFn($('#big-bad-dog').html(), 'big-bad-dog');
+		dust.compileFn($('#planty').html(), 'planty');
+
+		// Async counting
+		var pending = 3;
+		function checkIn () {
+			if (!(--pending)) {
+				finished();
+			}
+		}
+
+		// Render
+		dust.render('cute-cat', stuff.cat, function (err, out) {
 			if (err) {
 				return console.error(err);
 			}
 			$('#cat-stuff').html(out);
-			promises[0].resolve();
+			checkIn();
 		});
-		dust.render('big-bad-dog', dogs, function (err, out) {
+		dust.render('big-bad-dog', stuff.dog, function (err, out) {
 			if (err) {
 				return console.error(err);
 			}
 			$('#dog-stuff').html(out);
-			promises[1].resolve();
+			checkIn();
 		});
-		dust.render('planty', plants, function (err, out) {
+		dust.render('planty', stuff.plant, function (err, out) {
 			if (err) {
 				return console.error(err);
 			}
 			$('#plant-stuff').html(out);
-			promises[2].resolve();
+			checkIn();
 		});
-		$.when(promises).done(function () {
-			// validate template
+		function finished () {
+			$('#cat-stuff .name').text().should.not.be.empty;
+			$('#dog-stuff .foot').should.have.length(4);
+			$('#plant-stuff .name').text().should.equal('bob');
 			done();
-		});
+		}
 	});
 
 
-	it("Example 2 works as expected", function (done) {
-		jQuery('#temp').append(
-			'<div id="cat-stuff" data-dust-template="cute-cat"></div>' +
-			'<div id="dog-stuff" data-dust-template="big-bad-dog"></div>' +
-			'<div id="plant-stuff" data-dust-template="planty"></div>'
-		);
-		var promises = [
-			$('#cat-stuff').dust(cats),
-			$('#dog-stuff').dust(dogs),
-			$('#plant-stuff').dust(plants)
+
+	it('Example 1: Single-line declarations, auto-compilation, promises.', function (done) {
+		$('#temp').html(initialHTML);
+		// Data
+		var stuff = {
+			cat: {name: 'fluffy', feet: [1,1,1,1]},
+			dog: {name: 'fred', feet: [1,1,1,1]},
+			plant: {name: 'bob'}
+		};
+
+		// Templates
+		$.dust.compile();
+
+		// Async counting
+		var pending = 3;
+		function checkIn () {
+			if (!(--pending)) {
+				finished();
+			}
+		}
+
+		// Render
+		$('#cat-stuff').dust('cute-cat', stuff.cat).done(checkIn);
+		$('#dog-stuff').dust('big-bad-dog', stuff.dog).done(checkIn);
+		$('#plant-stuff').dust('planty', stuff.plant).done(checkIn);
+
+		function finished () {
+			$('#cat-stuff .name').text().should.equal('fluffy');
+			$('#dog-stuff .foot').should.have.length(4);
+			$('#plant-stuff .name').text().should.equal('bob');
+			done();
+		}
+	});
+
+
+
+	it('Example 2: Collect promises with $.when', function (done) {
+		$('#temp').html(initialHTML);
+		// Data
+		var stuff = {
+			cat: {name: 'fluffy', feet: [1,1,1,1]},
+			dog: {name: 'fred', feet: [1,1,1,1]},
+			plant: {name: 'bob'}
+		};
+
+		// Templates
+		$.dust.compile();
+
+		// Render
+		$.when(
+			$('#cat-stuff').dust('cute-cat', stuff.cat),
+			$('#dog-stuff').dust('big-bad-dog', stuff.dog),
+			$('#plant-stuff').dust('planty', stuff.plant)
+		).done(finished);
+
+		function finished () {
+			$('#cat-stuff .name').text().should.equal('fluffy');
+			$('#dog-stuff .foot').should.have.length(4);
+			$('#plant-stuff .name').text().should.equal('bob');
+			done();
+		}
+	});
+
+	it('Example 3: Declare templates in markup', function (done) {
+		$('#temp').html(multiline(function(){/*
+		<div id="cat-stuff" data-dust-template="cute-cat"></div>
+		<div id="dog-stuff" data-dust-template="big-bad-dog"></div>
+		<div id="plant-stuff" data-dust-template="plant"></div>
+		<script id="cute-cat" type="text/dust-template">
+			<div class="cute-cat">
+				<div class="name">{name}</div>
+				{#feet}<span class="foot"/>{/feet}
+			</div>
+		</script>
+		<script id="big-bad-dog" type="text/dust-template">
+			<div class="dog">
+				<div class="name">{name}</div>
+				{#feet}<span class="foot"/>{/feet}
+			</div>
+		</script>
+		<script id="plant" type="text/dust-template">
+			<div class="plant">
+				<div class="name">{name}</div>
+			</div>
+		</script>
+		*/}));
+
+		// Data
+		var stuff = {
+			cat: {name: 'fluffy', feet: [1,1,1,1]},
+			dog: {name: 'fred', feet: [1,1,1,1]},
+			plant: {name: 'bob'}
+		};
+
+		// Templates
+		$.dust.compile();
+
+		// Render
+		$.when(
+			$('#cat-stuff').dust(stuff.cat),
+			$('#dog-stuff').dust(stuff.dog),
+			$('#plant-stuff').dust(stuff.plant)
+		).done(finished);
+
+		function finished () {
+			$('#cat-stuff .name').text().should.equal('fluffy');
+			$('#dog-stuff .foot').should.have.length(4);
+			$('#plant-stuff .name').text().should.equal('bob');
+			done();
+		}
+	});
+
+
+	it('Example 4: Several at once', function (done) {
+		$('#temp').html(multiline(function(){/*
+		<div id="cat-stuff" class="stuff" data-dust-template="cute-cat"></div>
+		<div id="dog-stuff" class="stuff" data-dust-template="big-bad-dog"></div>
+		<div id="plant-stuff" class="stuff" data-dust-template="plant"></div>
+		<script id="cute-cat" type="text/dust-template">
+			<div class="cute-cat">
+				<div class="name">{cat.name}</div>
+				{#cat.feet}<span class="foot"/>{/cat.feet}
+			</div>
+		</script>
+		<script id="big-bad-dog" type="text/dust-template">
+			<div class="dog">
+				<div class="name">{dog.name}</div>
+				{#dog.feet}<span class="foot"/>{/dog.feet}
+			</div>
+		</script>
+		<script id="plant" type="text/dust-template">
+			<div class="plant">
+				<div class="name">{plant.name}</div>
+			</div>
+		</script>
+		*/}));
+		var stuff = {
+			cat: {name: 'fluffy', feet: [1,1,1,1]},
+			dog: {name: 'fred', feet: [1,1,1,1]},
+			plant: {name: 'bob'}
+		};
+		$.dust.compile();
+		$('.stuff').dust(stuff).done(finished);
+
+		function finished () {
+			$('#cat-stuff .name').text().should.equal('fluffy');
+			$('#dog-stuff .foot').should.have.length(4);
+			$('#plant-stuff .name').text().should.equal('bob');
+			done();
+		}
+	});
+
+
+
+	it('Example 5: Sets of data at once', function (done) {
+		$('#temp').html(multiline(function(){/*
+		<div class="cat" data-dust-template="cute-cat"></div>
+		<div class="cat" data-dust-template="cute-cat"></div>
+		<div class="cat" data-dust-template="cute-cat"></div>
+		<script id="cute-cat" type="text/dust-template">
+			<div class="cute-cat">
+				<div class="name">{name}</div>
+				{#feet}<span class="foot"/>{/feet}
+			</div>
+		</script>
+		*/}));
+
+		// Data
+		var cats = [
+			{name: 'fluffy', feet: [1,1,1,1]},
+			{name: 'fred', feet: [1,1,1,1]},
+			{name: 'bob'}
 		];
-		$.when(promises).done(function () {
-			// validate template
+
+		// Pick up templates from DOM
+		$.dust.compile();
+
+		// Render
+		$('.cat').dust(function (index) {
+			return cats[index];
+		}).done(finished);
+
+		function finished () {
+			$('.cat:eq(0) .name').text().should.equal('fluffy');
+			$('.cat:eq(1) .foot').should.have.length(4);
+			$('.cat:eq(2) .name').text().should.equal('bob');
 			done();
-		});
+		}
 	});
 
-	it("Example 3 works as expected", function (done) {
-		jQuery('#temp').append(
-			'<div class="thing" data-dust-template="cute-cat"></div>' +
-			'<div class="thing" data-dust-template="big-bad-dog"></div>' +
-			'<div class="thing" data-dust-template="planty"></div>'
-		);
-		$('.thing').dust(bigDataObject)
-			.done(promises, function () {
-				// validate template
-				done();
-			});
-	});
 
-	it("Example 4 works as expected", function (done) {
-		jQuery('#temp').append(
-			'<div class="thing" data-dust-template="cute-cat"></div>' +
-			'<div class="thing" data-dust-template="big-bad-dog"></div>' +
-			'<div class="thing" data-dust-template="planty"></div>'
-		);
-		$('.thing')
-			.dust(bigDataObject)
-			.done(function ($cat, $dog, $planty) {
-				$cat.show();
-				$dog.slideUp();
-				$planty.fadeIn();
-			})
-			.done(function () {
-				// validate template
-				done();
-			});
-	});
+});
 });

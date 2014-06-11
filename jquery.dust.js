@@ -4,6 +4,8 @@
 /*global jQuery, dust*/
 (function ($) {
   /**
+   * Render a dust template to the current element
+   *
    * @param {string} template (optional)
    *   Name of the dust template to use.
    *   If skipped, will use this parameter as data, and
@@ -22,7 +24,7 @@
     }
     return $.extend(this, $.when(
       this.map(function (index, domElement) {
-        return $.dust.render(domElement,
+        return $.dust(domElement,
           templateName || $(domElement).data('dust-template'),
           ($.isFunction(data) ? data.call(domElement, index) : (data || $(domElement).data()))
         );
@@ -30,10 +32,15 @@
     ));
   };
 
-  $.dust = {};
+  $.fn.dust_compile = function (templateName) {
+    return this.each(function () {
+      dust.compileFn($(this).html(), templateName || $(this).attr('id'));
+    });
+  };
 
   /**
    * Render a Dust template to a particular element
+   *
    * @param {selector} element
    *   A jQuery Selector to apply templated data to
    * @param {string} templateName
@@ -43,7 +50,7 @@
    * @return {jQuery.Deferred}
    *   Promise resolved with the element has rendered with the element
    */
-  $.dust.render = function (element, templateName, templateData) {
+  $.dust = function (element, templateName, templateData) {
     var deferred = new $.Deferred();
     dust.render(templateName, templateData, function (err, out) {
       if (err) {
@@ -56,14 +63,8 @@
     return deferred;
   };
 
-  /**
-   * Compile Dart Templates embedded in script tags 
-   */
-  $.dust.compileScripts = function () {
-    $('script[type="text/dust-template"][id]').each(function () {
-      dust.compile($(this).html(), this.id);
-    });
+  $.dust.compile = function () {
+    $('script[type="text/dust-template"][id]').dust_compile();
   };
-
 
 }(jQuery));
