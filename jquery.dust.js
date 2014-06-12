@@ -56,7 +56,8 @@
    */
   $.dust = function (element, templateName, templateData) {
     if (templateData && typeof templateData.then === 'function') {
-      return templateData.then($.proxy($.dust, $, element, templateName));
+      var pipe = templateData.pipe || templateData.then; // compat jQuery <1.8
+      return pipe($.proxy($.dust, $, element, templateName));
     }
     var deferred = new $.Deferred();
     dust.render(templateName, templateData, function (err, out) {
