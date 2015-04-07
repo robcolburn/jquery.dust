@@ -1,20 +1,34 @@
 {
-  "name": "jQuery.dust",
+  "name": "jquery.dust",
   "version": "1.0.0",
   "description": "Simple jQuery wrapper around dust",
-  "author": "Rob Colburn <rob@robcolburn.com>",
+  "author": "Rob Colburn",
+  "main": "jquery.dust.js",
+  "scripts": {
+    "test": "gulp test"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/robcolburn/jquery.dust.git"
   },
-  "devDependencies": {
-    "jquery": "^2.1.1",
-    "dustjs-linkedin": "^2.3.5",
-    "chai": "^1.9.1",
-    "mocha": "^1.18.2",
-    "multiline": "^0.3.4"
+  "keywords": [
+    "jquery-plugin",
+    "ecosystem:jquery",
+    "dust",
+    "dustjs"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/robcolburn/jquery.dust/issues"
   },
-  "engines": {
-    "node": ">=0.8.0"
+  "homepage": "https://github.com/robcolburn/jquery.dust",
+  "devDependencies": {
+    "chai": "^2.2.0",
+    "dustjs-linkedin": "^2.3.5",
+    "gulp": "^3.8.11",
+    "gulp-mocha-phantomjs": "^0.6.1",
+    "jquery": "^2.1.3",
+    "mocha": "^2.2.3",
+    "multiline": "^0.3.4"
   }
 }
